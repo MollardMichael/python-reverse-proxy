@@ -47,7 +47,7 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
             msg = resp.text
             # msg = msg.replace('Welcome','CHANGED HERE') 
             if body:
-                self.wfile.write(msg.encode())
+                self.wfile.write(msg.encode(encoding='UTF-8',errors='strict'))
             return
         finally:
             if not sent:
