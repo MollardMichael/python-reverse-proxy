@@ -44,11 +44,12 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
 
             self.send_response(resp.status_code)
             self.send_resp_headers(resp)
+            # msg = resp.text
+            # msg = msg.replace('Welcome','CHANGED HERE') 
             if body:
-                self.wfile.write(resp.content)
+                self.wfile.write(msg.encode())
             return
         finally:
-            self.finish()
             if not sent:
                 self.send_error(404, 'error trying to proxy')
 
@@ -69,7 +70,6 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(resp.content)
             return
         finally:
-            self.finish()
             if not sent:
                 self.send_error(404, 'error trying to proxy')
 
@@ -90,8 +90,6 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header(key, respheaders[key])
         self.send_header('Content-Length', len(resp.content))
         self.end_headers()
-
-
 
 def parse_args(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Proxy HTTP requests')
