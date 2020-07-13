@@ -1,11 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler,HTTPServer
 import argparse
 import os
 import random
 import sys
 import requests
+
+from socketserver import ThreadingMixIn
+import threading
 
 hostname = 'en.wikipedia.org'
 
@@ -25,7 +28,8 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.0'
     def do_HEAD(self):
         self.do_GET(body=False)
-
+        return
+        
     def do_GET(self, body=True):
         sent = False
         try:
@@ -71,7 +75,7 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def parse_headers(self):
         req_header = {}
-        for line in self.headers.headers:
+        for line in self.headers:
             line_parts = [o.strip() for o in line.split(':', 1)]
             if len(line_parts) == 2:
                 req_header[line_parts[0]] = line_parts[1]
@@ -79,10 +83,10 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def send_resp_headers(self, resp):
         respheaders = resp.headers
-        print 'Response Header'
+        print ('Response Header')
         for key in respheaders:
             if key not in ['Content-Encoding', 'Transfer-Encoding', 'content-encoding', 'transfer-encoding', 'content-length', 'Content-Length']:
-                print key, respheaders[key]
+                print (key, respheaders[key])
                 self.send_header(key, respheaders[key])
         self.send_header('Content-Length', len(resp.content))
         self.end_headers()
@@ -96,11 +100,15 @@ def parse_args(argv=sys.argv[1:]):
     args = parser.parse_args(argv)
     return args
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+
 def main(argv=sys.argv[1:]):
     args = parse_args(argv)
     print('http server is starting on port {}...'.format(args.port))
     server_address = ('127.0.0.1', args.port)
-    httpd = HTTPServer(server_address, ProxyHTTPRequestHandler)
+    # httpd = HTTPServer(server_address, ProxyHTTPRequestHandler)
+    httpd = ThreadedHTTPServer(server_address, ProxyHTTPRequestHandler)
     print('http server is running as reverse proxy')
     httpd.serve_forever()
 
