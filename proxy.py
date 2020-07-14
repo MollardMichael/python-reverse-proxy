@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 
 from http.server import BaseHTTPRequestHandler,HTTPServer
-import argparse
-import os
-import random
-import sys
-import requests
+import argparse, os, random, sys, requests
 
 from socketserver import ThreadingMixIn
 import threading
@@ -95,6 +91,8 @@ def parse_args(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Proxy HTTP requests')
     parser.add_argument('--port', dest='port', type=int, default=9999,
                         help='serve HTTP requests on specified port (default: random)')
+    parser.add_argument('--hostname', dest='hostname', type=str, default='en.wikipedia.org',
+                        help='hostname to be processd (default: en.wikipedia.org)')
     args = parser.parse_args(argv)
     return args
 
@@ -102,10 +100,11 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
 def main(argv=sys.argv[1:]):
+    global hostname
     args = parse_args(argv)
-    print('http server is starting on port {}...'.format(args.port))
+    hostname = args.hostname
+    print('http server is starting on {} port {}...'.format(args.hostname, args.port))
     server_address = ('127.0.0.1', args.port)
-    # httpd = HTTPServer(server_address, ProxyHTTPRequestHandler)
     httpd = ThreadedHTTPServer(server_address, ProxyHTTPRequestHandler)
     print('http server is running as reverse proxy')
     httpd.serve_forever()
