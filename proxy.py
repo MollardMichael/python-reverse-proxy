@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from http.server import *
 import argparse
 import os
 import random
@@ -10,9 +10,7 @@ import requests
 hostname = 'en.wikipedia.org'
 
 def merge_two_dicts(x, y):
-    z = x.copy()   # start with x's keys and values
-    z.update(y)    # modifies z with y's keys and values & returns None
-    return z
+    return x | y
 
 def set_header():
     headers = {
