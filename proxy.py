@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import argparse, os, random, sys, requests
 
 from socketserver import ThreadingMixIn
 import threading
 
+
 hostname = 'en.wikipedia.org'
 
 def merge_two_dicts(x, y):
-    z = x.copy()   # start with x's keys and values
-    z.update(y)    # modifies z with y's keys and values & returns None
-    return z
+    return x | y
 
 def set_header():
     headers = {
@@ -29,7 +27,6 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self, body=True):
         sent = False
         try:
-
             url = 'https://{}{}'.format(hostname, self.path)
             req_header = self.parse_headers()
 
@@ -41,7 +38,6 @@ class ProxyHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(resp.status_code)
             self.send_resp_headers(resp)
             msg = resp.text
-            # msg = msg.replace('Welcome','CHANGED HERE') 
             if body:
                 self.wfile.write(msg.encode(encoding='UTF-8',errors='strict'))
             return
